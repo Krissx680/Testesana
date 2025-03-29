@@ -52,3 +52,6 @@ runs:
       run: npm run greetings
       shell: bash
       working-directory: test-framework
+      env:
+        host: http://localhost
+        port: ${{ inputs.port }}
