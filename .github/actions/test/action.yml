@@ -50,17 +50,13 @@ runs:
 
     - name: Create config.json for test framework
       run: |
-        mkdir -p config
-        echo '{ "greetings": { "host": "http://localhost", "port": '${{ inputs.port }}' } }' > config/config.json
+        mkdir -p test-framework/config
+        echo '{ "greetings": { "host": "http://localhost", "port": '${{ inputs.port }}' } }' > test-framework/config/config.json
       shell: bash
-      working-directory: test-framework
 
     - name: Show config.json (debug)
-      run: |
-        ls -la config
-        cat config/config.json
+      run: cat test-framework/config/config.json
       shell: bash
-      working-directory: test-framework
 
     - name: Run greetings tests
       run: npx mocha 'tests/scenarios/greetings/*.js' --reporter mochawesome --timeout 20000
