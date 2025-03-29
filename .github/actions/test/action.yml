@@ -51,7 +51,12 @@ runs:
     - name: Create config.json for test framework
       run: |
         mkdir -p config
-        echo '{ "greetings": { "host": "http://localhost", "port": ${{ inputs.port }} } }' > config/config.json
+        echo '{ "greetings": { "host": "http://localhost", "port": '${{ inputs.port }}' } }' > config/config.json
+      shell: bash
+      working-directory: test-framework
+
+    - name: Show config.json (debug)
+      run: cat config/config.json
       shell: bash
       working-directory: test-framework
 
