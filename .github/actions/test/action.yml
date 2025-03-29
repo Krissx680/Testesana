@@ -19,7 +19,7 @@ runs:
         repository: mtararujs/python-greetings
         path: greetings
 
-    - name: Install dependencies
+    - name: Install Python dependencies
       run: pip install -r requirements.txt
       shell: bash
       working-directory: greetings
@@ -34,7 +34,7 @@ runs:
       working-directory: greetings
 
     - name: Wait for app to start
-      run: sleep 5
+      run: sleep 10
       shell: bash
 
     - name: Clone test framework
@@ -49,6 +49,6 @@ runs:
       working-directory: test-framework
 
     - name: Run greetings tests
-      run: npm run greetings greetings_dev
+      run: npm run greetings
       shell: bash
       working-directory: test-framework
