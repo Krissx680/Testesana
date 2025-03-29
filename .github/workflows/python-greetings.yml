@@ -1,22 +1,120 @@
-name: Greetings Pipeline
+name: Python Greetings Delivery Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  tests-on-dev:
-    name: Deploy and Test on Dev
+  install-pip-deps:
     runs-on: self-hosted
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Run deploy and test action
+      - name: Installing Python dependencies...
+        uses: ./.github/actions/install-deps
+
+  deploy-to-dev:
+    needs: install-pip-deps
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy to Dev
+        uses: ./.github/actions/deploy
+        with:
+          env_name: dev
+          port: 7001
+
+  tests-on-dev:
+    needs: deploy-to-dev
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run tests on Dev
         uses: ./.github/actions/test
         with:
           env_name: dev
-          port: 5000
+          port: 7001
+
+  deploy-to-staging:
+    needs: tests-on-dev
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy to Staging
+        uses: ./.github/actions/deploy
+        with:
+          env_name: staging
+          port: 7002
+
+  tests-on-staging:
+    needs: deploy-to-staging
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run tests on Staging
+        uses: ./.github/actions/test
+        with:
+          env_name: staging
+          port: 7002
+
+  deploy-to-preprod:
+    needs: tests-on-staging
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy to Preprod
+        uses: ./.github/actions/deploy
+        with:
+          env_name: preprod
+          port: 7003
+
+  tests-on-preprod:
+    needs: deploy-to-preprod
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run tests on Preprod
+        uses: ./.github/actions/test
+        with:
+          env_name: preprod
+          port: 7003
+
+  deploy-to-prod:
+    needs: tests-on-preprod
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy to Prod
+        uses: ./.github/actions/deploy
+        with:
+          env_name: prod
+          port: 7004
+
+  tests-on-prod:
+    needs: deploy-to-prod
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run tests on Prod
+        uses: ./.github/actions/test
+        with:
+          env_name: prod
+          port: 7004
