@@ -1,20 +1,11 @@
-
 name: Install Python Dependencies
-description: Clones app repo and installs pip dependencies
-
+description: install pip 
 runs:
   using: "composite"
   steps:
-    - name: Checkout pipeline repo
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Clone python-greetings repo
-      uses: actions/checkout@v4
-      with:
-        repository: mtararujs/python-greetings
-        path: greetings
-
-    - name: Install dependencies
+    - name: Install dependencies with pip
       run: pip install -r requirements.txt
-      shell: bash
-      working-directory: greetings
+      shell: powershell
