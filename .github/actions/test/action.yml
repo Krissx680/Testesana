@@ -1,8 +1,10 @@
-name: Run Tests
-description: Runs API tests for the greetings app
+name: Deploy App
+description: Clones and starts app with pm2
 
 inputs:
   env_name:
+    required: true
+  port:
     required: true
 
 runs:
@@ -11,35 +13,26 @@ runs:
     - name: Checkout pipeline repo
       uses: actions/checkout@v4
 
-    - name: Clone test framework
+    - name: Clone greetings repo
       uses: actions/checkout@v4
       with:
-        repository: mtararujs/course-js-api-framework
-        path: test-framework
+        repository: mtararujs/python-greetings
+        path: greetings
 
-    - name: Install Node dependencies
-      run: npm install
+    - name: Install dependencies
+      run: pip install -r requirements.txt
       shell: bash
-      working-directory: test-framework
+      working-directory: greetings
 
-    - name: Create config/config.json
-      run: |
-        mkdir -p config
-        echo '{
-          "greetings_dev": { "host": "http://localhost", "port": 7001 },
-          "greetings_staging": { "host": "http://localhost", "port": 7002 },
-          "greetings_preprod": { "host": "http://localhost", "port": 7003 },
-          "greetings_prod": { "host": "http://localhost", "port": 7004 }
-        }' > config/config.json
+    - name: Stop existing app (if running)
+      run: pm2 delete greetings-app-${{ inputs.env_name }} || true
       shell: bash
-      working-directory: test-framework
 
-    - name: Show config file (debug)
-      run: cat config/config.json
+    - name: Start app with pm2 (using PORT env)
+      run: PORT=${{ inputs.port }} pm2 start app.py --name greetings-app-${{ inputs.env_name }}
       shell: bash
-      working-directory: test-framework
+      working-directory: greetings
 
-    - name: Run tests on ${{ inputs.env_name }}
-      run: npx mocha 'tests/scenarios/greetings/*.js' --reporter mochawesome --timeout 20000 greetings_${{ inputs.env_name }}
+    - name: Wait for app to fully start
+      run: sleep 10
       shell: bash
-      working-directory: test-framework
