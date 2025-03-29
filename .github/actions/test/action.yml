@@ -60,15 +60,12 @@ runs:
       shell: bash
       working-directory: test-framework
 
-    - name: Export .env variables manually
-      run: |
-        set -a
-        source .env
-        set +a
+    - name: Install dotenv-cli
+      run: npm install dotenv-cli
       shell: bash
       working-directory: test-framework
 
-    - name: Run greetings tests
-      run: npm run greetings
+    - name: Run greetings tests with dotenv
+      run: npx dotenv -e .env -- npm run greetings
       shell: bash
       working-directory: test-framework
