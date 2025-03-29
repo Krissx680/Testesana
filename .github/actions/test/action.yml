@@ -1,10 +1,8 @@
-name: Deploy App and Run Tests
-description: Clones and starts app with pm2 and runs tests
+name: Run Tests
+description: Runs API tests for the greetings app
 
 inputs:
   env_name:
-    required: true
-  port:
     required: true
 
 runs:
@@ -12,30 +10,6 @@ runs:
   steps:
     - name: Checkout pipeline repo
       uses: actions/checkout@v4
-
-    - name: Clone greetings repo
-      uses: actions/checkout@v4
-      with:
-        repository: mtararujs/python-greetings
-        path: greetings
-
-    - name: Install Python dependencies
-      run: pip install -r requirements.txt
-      shell: bash
-      working-directory: greetings
-
-    - name: Stop existing app (if running)
-      run: pm2 delete greetings-app-${{ inputs.env_name }} || true
-      shell: bash
-
-    - name: Start app with pm2
-      run: pm2 start app.py --name greetings-app-${{ inputs.env_name }} -- --port ${{ inputs.port }}
-      shell: bash
-      working-directory: greetings
-
-    - name: Wait for app to start
-      run: sleep 10
-      shell: bash
 
     - name: Clone test framework
       uses: actions/checkout@v4
@@ -48,21 +22,24 @@ runs:
       shell: bash
       working-directory: test-framework
 
-    - name: Create config.json for test framework
+    - name: Create config/config.json
       run: |
         mkdir -p config
-        echo '{ "greetings": { "host": "http://localhost", "port": '${{ inputs.port }}' } }' > config/config.json
+        echo '{
+          "greetings_dev": { "host": "http://localhost", "port": 7001 },
+          "greetings_staging": { "host": "http://localhost", "port": 7002 },
+          "greetings_preprod": { "host": "http://localhost", "port": 7003 },
+          "greetings_prod": { "host": "http://localhost", "port": 7004 }
+        }' > config/config.json
       shell: bash
       working-directory: test-framework
 
-    - name: Show config.json (debug)
-      run: |
-        echo "===== config/config.json content ====="
-        cat config/config.json
+    - name: Show config file (debug)
+      run: cat config/config.json
       shell: bash
       working-directory: test-framework
 
-    - name: Run greetings tests
-      run: npx mocha 'tests/scenarios/greetings/*.js' --reporter mochawesome --timeout 20000
+    - name: Run tests on ${{ inputs.env_name }}
+      run: npx mocha 'tests/scenarios/greetings/*.js' --reporter mochawesome --timeout 20000 greetings_${{ inputs.env_name }}
       shell: bash
       working-directory: test-framework
