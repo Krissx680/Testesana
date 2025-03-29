@@ -60,6 +60,14 @@ runs:
       shell: bash
       working-directory: test-framework
 
+    - name: Export .env variables manually
+      run: |
+        set -a
+        source .env
+        set +a
+      shell: bash
+      working-directory: test-framework
+
     - name: Run greetings tests
       run: npm run greetings
       shell: bash
