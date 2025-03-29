@@ -48,10 +48,14 @@ runs:
       shell: bash
       working-directory: test-framework
 
+    - name: Create .env for test environment
+      run: |
+        echo "host=http://localhost" >> .env
+        echo "port=${{ inputs.port }}" >> .env
+      shell: bash
+      working-directory: test-framework
+
     - name: Run greetings tests
       run: npm run greetings
       shell: bash
       working-directory: test-framework
-      env:
-        host: http://localhost
-        port: ${{ inputs.port }}
