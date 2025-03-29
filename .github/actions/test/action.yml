@@ -55,6 +55,11 @@ runs:
       shell: bash
       working-directory: test-framework
 
+    - name: Print .env content (debug)
+      run: cat .env
+      shell: bash
+      working-directory: test-framework
+
     - name: Run greetings tests
       run: npm run greetings
       shell: bash
