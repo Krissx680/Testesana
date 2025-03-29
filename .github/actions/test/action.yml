@@ -56,7 +56,9 @@ runs:
       working-directory: test-framework
 
     - name: Show config.json (debug)
-      run: cat config/config.json
+      run: |
+        ls -la config
+        cat config/config.json
       shell: bash
       working-directory: test-framework
 
