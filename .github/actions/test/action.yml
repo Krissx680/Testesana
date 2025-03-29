@@ -1,9 +1,10 @@
-
-name: Run Tests
-description: Clones test framework and runs tests
+name: Deploy App and Run Tests
+description: Clones and starts app with pm2 and runs tests
 
 inputs:
   env_name:
+    required: true
+  port:
     required: true
 
 runs:
@@ -12,18 +13,42 @@ runs:
     - name: Checkout pipeline repo
       uses: actions/checkout@v4
 
+    - name: Clone greetings repo
+      uses: actions/checkout@v4
+      with:
+        repository: mtararujs/python-greetings
+        path: greetings
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+      shell: bash
+      working-directory: greetings
+
+    - name: Stop existing app (if running)
+      run: pm2 delete greetings-app-${{ inputs.env_name }} || true
+      shell: bash
+
+    - name: Start app with pm2
+      run: pm2 start app.py --name greetings-app-${{ inputs.env_name }} -- --port ${{ inputs.port }}
+      shell: bash
+      working-directory: greetings
+
+    - name: Wait for app to start
+      run: sleep 5
+      shell: bash
+
     - name: Clone test framework
       uses: actions/checkout@v4
       with:
         repository: mtararujs/course-js-api-framework
         path: test-framework
 
-    - name: Install dependencies
+    - name: Install Node dependencies
       run: npm install
       shell: bash
       working-directory: test-framework
 
-    - name: Run tests
-      run: npm run greetings greetings_${{ inputs.env_name }}
+    - name: Run greetings tests
+      run: npm run greetings greetings_dev
       shell: bash
       working-directory: test-framework
