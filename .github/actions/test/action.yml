@@ -56,7 +56,9 @@ runs:
       working-directory: test-framework
 
     - name: Show config.json (debug)
-      run: cat config/config.json
+      run: |
+        echo "===== config/config.json content ====="
+        cat config/config.json
       shell: bash
       working-directory: test-framework
 
