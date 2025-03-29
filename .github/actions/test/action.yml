@@ -65,7 +65,7 @@ runs:
       shell: bash
       working-directory: test-framework
 
-    - name: Run greetings tests with dotenv
-      run: npx dotenv -e .env -- npm run greetings
+    - name: Run greetings tests with mocha directly
+      run: npx dotenv -e .env -- npx mocha 'tests/scenarios/greetings/*.js' --reporter mochawesome --timeout 20000
       shell: bash
       working-directory: test-framework
