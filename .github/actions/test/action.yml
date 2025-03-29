@@ -48,24 +48,14 @@ runs:
       shell: bash
       working-directory: test-framework
 
-    - name: Create .env for test environment
+    - name: Create config.json for test framework
       run: |
-        echo "host=http://localhost" >> .env
-        echo "port=${{ inputs.port }}" >> .env
+        mkdir -p config
+        echo '{ "greetings": { "host": "http://localhost", "port": ${{ inputs.port }} } }' > config/config.json
       shell: bash
       working-directory: test-framework
 
-    - name: Print .env content (debug)
-      run: cat .env
-      shell: bash
-      working-directory: test-framework
-
-    - name: Install dotenv-cli
-      run: npm install dotenv-cli
-      shell: bash
-      working-directory: test-framework
-
-    - name: Run greetings tests with mocha directly
-      run: npx dotenv -e .env -- npx mocha 'tests/scenarios/greetings/*.js' --reporter mochawesome --timeout 20000
+    - name: Run greetings tests
+      run: npx mocha 'tests/scenarios/greetings/*.js' --reporter mochawesome --timeout 20000
       shell: bash
       working-directory: test-framework
